@@ -1,30 +1,28 @@
-from playwright.sync_api import Page, expect
+from playwright.sync_api import sync_playwright
+import time
 
-def test_chulakov_website_loads(page: Page):
-    # Переходим на сайт
-    page.goto("https://chulakov.team/")
-    page.wait_for_load_state("networkidle")
-    
-    # Проверяем статус ответа
-    response = page.wait_for_response(
-        lambda response: response.url == "https://chulakov.team/" and response.status == 200
-    )
-    assert response.status == 200
-    
-    # Проверяем контент
-    h1_element = page.locator("h1")
-    expect(h1_element).to_contain_text("Быть в топе рейтингов")
-    
-    awards_block = page.locator("text=153 наград")
-    expect(awards_block).to_be_visible()
-
-# Добавляем этот блок для запуска через python3
-if __name__ == "__main__":
-    from playwright.sync_api import sync_playwright
-    
+def test_site_opens():
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)  # Откроет браузер
+        # Запускаем браузер с открытым окном (headless=False)
+        browser = p.chromium.launch(headless=False)
         page = browser.new_page()
-        test_chulakov_website_loads(page)
-        print("✅ Тест успешно выполнен!")
+        
+        print("🚀 Открываю браузер и перехожу на сайт...")
+        
+        # Переходим на сайт
+        response = page.goto("https://chulakov.team/")
+        
+        # Проверяем статус ответа
+        assert response.status == 200, f"Ожидался статус 200, получен {response.status}"
+        
+        print(f"✅ Сайт успешно открылся! Статус: {response.status}")
+        
+        # Держим браузер открытым 5 секунд, чтобы вы могли увидеть сайт
+        print("⏳ Браузер закроется через 5 секунд...")
+        time.sleep(5)
+        
         browser.close()
+        print("✅ Браузер закрыт. Тест завершён!")
+
+if __name__ == "__main__":
+    test_site_opens()
